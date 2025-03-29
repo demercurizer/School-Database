@@ -1,88 +1,80 @@
--- 1. Выбрать учителей, которые провели хотя бы один урок, и вывести имя с количеством проведённых уроков
-SELECT 
-    t.TeacherID,
-    t.Name AS TeacherName,
-    COUNT(l.LessonID) AS TotalLessons
-FROM Teachers t
-JOIN Lessons l ON t.TeacherID = l.TeacherID
-GROUP BY t.TeacherID, t.Name
-HAVING COUNT(l.LessonID) > 0;
-
--- 2. Найти студентов из класса с ID = 5, у которых есть хотя бы одна оценка выше 8
-SELECT s.StudentID, s.Name
-FROM Students s
-WHERE s.ClassID = 5
-  AND EXISTS (
-      SELECT 1 
-      FROM Marks m
-      WHERE m.StudentID = s.StudentID
-        AND m.Value > 8
-  );
-
--- 3. Получить имена студентов с названиями их классов и общее количество уроков, которые посещал студент
-SELECT 
-    s.StudentID,
-    CONCAT(s.Name, ' - ', c.Name, ' (Total Lessons: ', 
-           (SELECT COUNT(*) FROM Marks m JOIN Lessons ls ON m.LessonID = ls.LessonID 
-            WHERE m.StudentID = s.StudentID), ')') AS StudentInfo
-FROM Students s
-LEFT JOIN Classes c ON s.ClassID = c.ClassID;
-
--- 4. Добавить нового учителя только если учитель с таким именем еще не существует
-INSERT INTO Teachers (Name, Subject)
-SELECT 'Иванова Мария Сергеевна', 'История'
-WHERE NOT EXISTS (
-    SELECT 1 FROM Teachers WHERE Name = 'Иванова Мария Сергеевна'
+-- Создание таблицы Teachers
+CREATE TABLE Teachers (
+    TeacherID INTEGER PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(200) NOT NULL
 );
 
--- 5. Обновить имя студента с ID = 42, добавив постфикс к первой части имени
-UPDATE Students
-SET Name = CONCAT(
-    (SELECT SUBSTRING(Name, 1, LOCATE(' ', Name) - 1) FROM Students WHERE StudentID = 42),
-    ' Петров (updated)'
-)
-WHERE StudentID = 42;
+-- Создание таблицы Classes
+CREATE TABLE Classes (
+    ClassID INTEGER PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(200) NOT NULL
+);
 
--- 6. Удалить класс с ID = 10, если в нем нет студентов и уроков
-DELETE FROM Classes
-WHERE ClassID = 10
-  AND NOT EXISTS (
-      SELECT 1 FROM Students WHERE ClassID = 10
-  )
-  AND NOT EXISTS (
-      SELECT 1 FROM Lessons WHERE ClassID = 10
-  );
+-- Создание таблицы Students
+CREATE TABLE Students (
+    StudentID INTEGER PRIMARY KEY AUTO_INCREMENT,
+    ClassID INTEGER,
+    Name VARCHAR(200) NOT NULL,
+    Email VARCHAR(255),
+    PhoneNumber VARCHAR(50),
+    CONSTRAINT fk_students_class
+        FOREIGN KEY (ClassID)
+        REFERENCES Classes(ClassID)
+        ON DELETE SET NULL  -- при удалении класса связь сбрасывается
+);
 
--- 7. Получить все оценки студента с ID = 7, включая дату урока и имя преподавателя
-SELECT 
-    m.Value, 
-    l.LessonDate, 
-    (SELECT t.Name FROM Teachers t WHERE t.TeacherID = l.TeacherID) AS TeacherName
-FROM Marks m
-JOIN Lessons l ON m.LessonID = l.LessonID
-WHERE m.StudentID = 7;
+-- Создание таблицы Lessons
+CREATE TABLE Lessons (
+    LessonID INTEGER PRIMARY KEY AUTO_INCREMENT,
+    ClassID INTEGER NOT NULL,
+    TeacherID INTEGER NOT NULL,
+    LessonDate DATE NOT NULL,
+    LessonStartTime TIME,  -- время начала урока
+    CONSTRAINT fk_lessons_class
+        FOREIGN KEY (ClassID)
+        REFERENCES Classes(ClassID)
+        ON DELETE CASCADE,  -- при удалении класса удаляются уроки
+    CONSTRAINT fk_lessons_teacher
+        FOREIGN KEY (TeacherID)
+        REFERENCES Teachers(TeacherID)
+        ON DELETE CASCADE   -- при удалении учителя удаляются уроки
+);
 
--- 8. Посчитать средний балл по каждому классу
-SELECT 
-    c.ClassID, 
-    c.Name,
-    (SELECT AVG(m.Value)
-     FROM Marks m
-     JOIN Students s ON m.StudentID = s.StudentID
-     WHERE s.ClassID = c.ClassID) AS AverageMark
-FROM Classes c;
+-- Создание таблицы Marks
+-- Удалён столбец TeacherID, т.к. он может быть получен через таблицу Lessons (Lessons.TeacherID)
+CREATE TABLE Marks (
+    MarkID INTEGER PRIMARY KEY AUTO_INCREMENT,
+    StudentID INTEGER NOT NULL,
+    LessonID INTEGER NOT NULL,
+    Value INTEGER CHECK (Value >= 1 AND Value <= 10),
+    CONSTRAINT fk_marks_student
+        FOREIGN KEY (StudentID)
+        REFERENCES Students(StudentID)
+        ON DELETE CASCADE,  -- при удалении студента удаляются оценки
+    CONSTRAINT fk_marks_lesson
+        FOREIGN KEY (LessonID)
+        REFERENCES Lessons(LessonID)
+        ON DELETE CASCADE   -- при удалении урока удаляются оценки
+);
 
--- 9. Найти историю изменений для студента с ID = 15, выводя названия старого и нового классов
-SELECT 
-    sh.HistoryDate,
-    (SELECT Name FROM Classes WHERE ClassID = sh.OldClassID) AS OldClass,
-    (SELECT Name FROM Classes WHERE ClassID = sh.NewClassID) AS NewClass
-FROM Students_history sh
-WHERE sh.StudentID = 15
-ORDER BY sh.HistoryDate DESC;
-
--- 10. Выбрать учителей, у которых не проведено ни одного урока
-SELECT t.*
-FROM Teachers t
-LEFT JOIN Lessons l ON t.TeacherID = l.TeacherID
-WHERE l.LessonID IS NULL;
+-- Создание таблицы истории студентов (Students_history)
+-- Здесь добавлены два поля: OldClassID и NewClassID, отражающие изменение класса
+CREATE TABLE Students_history (
+    ID INTEGER PRIMARY KEY AUTO_INCREMENT,
+    StudentID INTEGER NOT NULL,
+    OldClassID INTEGER NOT NULL,  -- класс, в котором студент был ранее
+    NewClassID INTEGER NOT NULL,  -- класс, в который студент перешёл
+    HistoryDate DATE NOT NULL,
+    CONSTRAINT fk_history_student
+        FOREIGN KEY (StudentID)
+        REFERENCES Students(StudentID)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_history_oldclass
+        FOREIGN KEY (OldClassID)
+        REFERENCES Classes(ClassID)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_history_newclass
+        FOREIGN KEY (NewClassID)
+        REFERENCES Classes(ClassID)
+        ON DELETE CASCADE
+);
