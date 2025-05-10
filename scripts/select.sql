@@ -29,19 +29,19 @@ FROM Students s
 LEFT JOIN Classes c ON s.ClassID = c.ClassID;
 
 -- 4. Добавить нового учителя только если учитель с таким именем еще не существует
-INSERT INTO Teachers (Name, Subject)
-SELECT 'Иванова Мария Сергеевна', 'История'
+INSERT INTO Teachers (TeacherID, Name)
+SELECT 42, 'Иванова Мария Сергеевна'
 WHERE NOT EXISTS (
-    SELECT 1 FROM Teachers WHERE Name = 'Иванова Мария Сергеевна'
-);
+  SELECT 1 FROM Teachers WHERE Name = 'Иванова Мария Сергеевна'
+)
+LIMIT 1;
+
 
 -- 5. Обновить имя студента с ID = 42, добавив постфикс к первой части имени
 UPDATE Students
-SET Name = CONCAT(
-    (SELECT SUBSTRING(Name, 1, LOCATE(' ', Name) - 1) FROM Students WHERE StudentID = 42),
-    ' Петров (updated)'
-)
-WHERE StudentID = 42;
+SET Name = 
+  concat(Name, ' ', 1)
+WHERE StudentID = 15;
 
 -- 6. Удалить класс с ID = 10, если в нем нет студентов и уроков
 DELETE FROM Classes

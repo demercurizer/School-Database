@@ -1,18 +1,25 @@
+DROP TABLE IF EXISTS Students_history CASCADE;
+DROP TABLE IF EXISTS Marks CASCADE;
+DROP TABLE IF EXISTS Lessons CASCADE;
+DROP TABLE IF EXISTS Students CASCADE;
+DROP TABLE IF EXISTS Classes CASCADE;
+DROP TABLE IF EXISTS Teachers CASCADE;
+
 -- Создание таблицы Teachers
 CREATE TABLE Teachers (
-    TeacherID INTEGER PRIMARY KEY AUTO_INCREMENT,
+    TeacherID INTEGER PRIMARY KEY,
     Name VARCHAR(200) NOT NULL
 );
 
 -- Создание таблицы Classes
-CREATE TABLE Classes (
-    ClassID INTEGER PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE Classes ( 
+    ClassID INTEGER PRIMARY KEY,
     Name VARCHAR(200) NOT NULL
 );
 
 -- Создание таблицы Students
 CREATE TABLE Students (
-    StudentID INTEGER PRIMARY KEY AUTO_INCREMENT,
+    StudentID INTEGER PRIMARY KEY,
     ClassID INTEGER,
     Name VARCHAR(200) NOT NULL,
     Email VARCHAR(255),
@@ -25,7 +32,7 @@ CREATE TABLE Students (
 
 -- Создание таблицы Lessons
 CREATE TABLE Lessons (
-    LessonID INTEGER PRIMARY KEY AUTO_INCREMENT,
+    LessonID INTEGER PRIMARY KEY,
     ClassID INTEGER NOT NULL,
     TeacherID INTEGER NOT NULL,
     LessonDate DATE NOT NULL,
@@ -41,9 +48,8 @@ CREATE TABLE Lessons (
 );
 
 -- Создание таблицы Marks
--- Удалён столбец TeacherID, т.к. он может быть получен через таблицу Lessons (Lessons.TeacherID)
 CREATE TABLE Marks (
-    MarkID INTEGER PRIMARY KEY AUTO_INCREMENT,
+    MarkID INTEGER PRIMARY KEY,
     StudentID INTEGER NOT NULL,
     LessonID INTEGER NOT NULL,
     Value INTEGER CHECK (Value >= 1 AND Value <= 10),
@@ -58,12 +64,11 @@ CREATE TABLE Marks (
 );
 
 -- Создание таблицы истории студентов (Students_history)
--- Здесь добавлены два поля: OldClassID и NewClassID, отражающие изменение класса
 CREATE TABLE Students_history (
-    ID INTEGER PRIMARY KEY AUTO_INCREMENT,
+    ID INTEGER PRIMARY KEY,
     StudentID INTEGER NOT NULL,
-    OldClassID INTEGER NOT NULL,  -- класс, в котором студент был ранее
-    NewClassID INTEGER NOT NULL,  -- класс, в который студент перешёл
+    OldClassID INTEGER,  -- разрешаем NULL
+    NewClassID INTEGER,  -- разрешаем NULL
     HistoryDate DATE NOT NULL,
     CONSTRAINT fk_history_student
         FOREIGN KEY (StudentID)

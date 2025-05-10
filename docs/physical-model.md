@@ -58,7 +58,7 @@
 | **Column Name** | **Data Type**  | **Nullable** | **Key** | **Constraints / Notes**                                                                         |
 |-----------------|----------------|--------------|---------|-------------------------------------------------------------------------------------------------|
 | ID              | INTEGER        | NOT NULL     | PK      | Primary Key, AUTO_INCREMENT                                                                     |
-| StudentID       | INTEGER        | NOT NULL     | FK      | Foreign Key: References Students(StudentID); ON DELETE CASCADE                                  |
-| OldClassID      | INTEGER        | NOT NULL     | FK      | Foreign Key: References Classes(ClassID); ON DELETE CASCADE (класс, в котором студент был ранее)   |
-| NewClassID      | INTEGER        | NOT NULL     | FK      | Foreign Key: References Classes(ClassID); ON DELETE CASCADE (класс, в который студент перешёл)      |
+| StudentID       | INTEGER        | NOT NULL     | FK      | Foreign Key: References Students(StudentID); ON DELETE CASCADE                                           |
+| OldClassID      | INTEGER        | NULL         | FK      | Foreign Key: References Classes(ClassID); ON DELETE CASCADE (класс, в котором студент был ранее)         |
+| NewClassID      | INTEGER        | NULL         | FK      | Foreign Key: References Classes(ClassID); ON DELETE CASCADE (класс, в который студент перешёл)           |
 | HistoryDate     | DATE           | NOT NULL     |         |                                                                                                 |
