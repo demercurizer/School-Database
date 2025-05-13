@@ -1,0 +1,26 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+*.pyo
+
+# Virtual environment
+venv/
+pyvenv.cfg
+
+# pytest cache and coverage reports
+.pytest_cache/
+htmlcov/
+.coverage
+
+# IDE / editor folders
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Database credentials (if any)
+.env

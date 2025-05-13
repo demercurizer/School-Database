@@ -73,3 +73,52 @@
 | OldClassID      | INTEGER        | NOT NULL     | FK      | Foreign Key: References Classes(ClassID); ON DELETE CASCADE (класс, в котором студент был ранее)   |
 | NewClassID      | INTEGER        | NOT NULL     | FK      | Foreign Key: References Classes(ClassID); ON DELETE CASCADE (класс, в который студент перешёл)      |
 | HistoryDate     | DATE           | NOT NULL     |         |                                                                                                 |
+
+
+# Инструкция по запуску тестов
+
+## 1. Активация виртуального окружения
+
+Если вы ещё не активировали виртуальное окружение проекта, выполните:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+После этого в подсказке терминала появится `(venv)`.
+
+## 2. Установка зависимостей
+
+Убедитесь, что все необходимые пакеты установлены:
+
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+Это установит pytest и все зависимости для работы тестов.
+
+## 3. Запуск тестов
+
+В корне проекта выполните команду:
+
+```bash
+pytest
+```
+
+Pytest автоматически найдёт все файлы `tests/test_*.py` и запустит 10 тестов, проверяющих корректность SQL-запросов.
+
+## 4. Просмотр отчёта покрытия
+
+Чтобы сгенерировать отчёт покрытия кода (coverage), выполните:
+
+```bash
+pytest --cov=. --cov-report=html
+```
+
+После этого в папке `htmlcov/` появятся HTML-файлы отчёта. Для быстрого просмотра откройте в браузере:
+
+* **Linux**: `xdg-open htmlcov/index.html`
+* **macOS**: `open htmlcov/index.html`
+* **Windows**: `start htmlcov\index.html`
