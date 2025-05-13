@@ -7,19 +7,19 @@ DROP TABLE IF EXISTS Teachers CASCADE;
 
 -- Создание таблицы Teachers
 CREATE TABLE Teachers (
-    TeacherID INTEGER PRIMARY KEY,
+    TeacherID SERIAL PRIMARY KEY,
     Name VARCHAR(200) NOT NULL
 );
 
 -- Создание таблицы Classes
 CREATE TABLE Classes ( 
-    ClassID INTEGER PRIMARY KEY,
+    ClassID SERIAL PRIMARY KEY,
     Name VARCHAR(200) NOT NULL
 );
 
 -- Создание таблицы Students
 CREATE TABLE Students (
-    StudentID INTEGER PRIMARY KEY,
+    StudentID SERIAL PRIMARY KEY,
     ClassID INTEGER,
     Name VARCHAR(200) NOT NULL,
     Email VARCHAR(255),
